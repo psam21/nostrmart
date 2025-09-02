@@ -25,10 +25,87 @@ NostrMart is a decentralized marketplace built on the Nostr protocol, deployed a
 
 ## 📋 Development Roadmap
 
-### Phase 1: Security & Authentication (Priority: HIGH)
+### Phase 1: Frontend Development (Priority: HIGHEST)
+**Estimated Time**: 2-3 weeks
+
+#### 1.1 Static Frontend Setup
+- **Goal**: Create modern, rich user interface for marketplace
+- **Technical Stack**:
+  - HTML5, CSS3, JavaScript (ES6+)
+  - Modern CSS framework (Tailwind CSS or similar)
+  - Nostr wallet integration (NIP-07)
+  - Responsive design (mobile-first)
+  - Progressive Web App (PWA) features
+- **File Structure**:
+  ```
+  public/
+    index.html
+    css/
+      style.css
+      components/
+        buttons.css
+        cards.css
+        forms.css
+    js/
+      app.js
+      nostr.js
+      marketplace.js
+      ui.js
+    assets/
+      icons/
+      images/
+      fonts/
+  ```
+
+#### 1.2 Modern UI Components
+- **Goal**: Build rich, interactive UI components
+- **Components**:
+  - Modern card-based layout for listings
+  - Interactive search and filter interface
+  - Smooth animations and transitions
+  - Dark/light theme toggle
+  - Loading states and skeleton screens
+  - Toast notifications for user feedback
+- **Design Principles**:
+  - Clean, minimalist design
+  - Consistent spacing and typography
+  - Accessible color contrast
+  - Smooth micro-interactions
+  - Mobile-first responsive design
+
+#### 1.3 Nostr Wallet Integration
+- **Goal**: Enable users to connect Nostr wallets seamlessly
+- **Technical Details**:
+  - Implement NIP-07 browser extension support
+  - Add wallet connection UI with status indicators
+  - Handle wallet events and state management
+  - Support multiple wallet types
+  - Graceful fallbacks for non-wallet users
+- **Implementation**:
+  - `js/nostr.js` - Nostr protocol handling
+  - `js/wallet.js` - Wallet connection logic
+  - Connection status indicators and user feedback
+
+#### 1.4 Marketplace UI Components
+- **Goal**: Core marketplace functionality with rich interactions
+- **Components**:
+  - Hero section with search and featured listings
+  - Item listing creation form with rich text editor
+  - Browse/search interface with filters and sorting
+  - User profile management with avatar upload
+  - Transaction history with status indicators
+  - Rating/review system with star ratings
+- **Technical Details**:
+  - Component-based architecture
+  - State management with localStorage
+  - Real-time updates via polling (WebSocket later)
+  - Responsive grid layouts with CSS Grid/Flexbox
+  - Image lazy loading and optimization
+
+### Phase 2: Security & Authentication (Priority: HIGH)
 **Estimated Time**: 1-2 weeks
 
-#### 1.1 Nostr Signature Verification
+#### 2.1 Nostr Signature Verification
 - **Goal**: Implement proper Nostr event signature validation
 - **Technical Details**:
   - Use `secp256k1` library for signature verification
@@ -41,7 +118,7 @@ NostrMart is a decentralized marketplace built on the Nostr protocol, deployed a
   - Update all API endpoints to require valid signatures
 - **Dependencies**: `secp256k1`, `hashlib`, `json`
 
-#### 1.2 Rate Limiting
+#### 2.2 Rate Limiting
 - **Goal**: Prevent API abuse and ensure fair usage
 - **Technical Details**:
   - Implement per-pubkey rate limiting
@@ -53,7 +130,7 @@ NostrMart is a decentralized marketplace built on the Nostr protocol, deployed a
   - Add rate limit table to database
   - Implement sliding window algorithm
 
-#### 1.3 Input Validation & Sanitization
+#### 2.3 Input Validation & Sanitization
 - **Goal**: Secure all user inputs
 - **Technical Details**:
   - Enhanced Pydantic models with strict validation
@@ -64,58 +141,6 @@ NostrMart is a decentralized marketplace built on the Nostr protocol, deployed a
   - `app/models/nostr.py` - Stricter validation rules
   - `app/models/media.py` - Media validation
   - All API endpoints for input sanitization
-
-### Phase 2: Frontend Development (Priority: HIGH)
-**Estimated Time**: 2-3 weeks
-
-#### 2.1 Static Frontend Setup
-- **Goal**: Create user interface for marketplace
-- **Technical Stack**:
-  - HTML5, CSS3, JavaScript (ES6+)
-  - Nostr wallet integration (NIP-07)
-  - Responsive design (mobile-first)
-  - Progressive Web App (PWA) features
-- **File Structure**:
-  ```
-  public/
-    index.html
-    css/
-      style.css
-      components/
-    js/
-      app.js
-      nostr.js
-      marketplace.js
-    assets/
-      icons/
-      images/
-  ```
-
-#### 2.2 Nostr Wallet Integration
-- **Goal**: Enable users to connect Nostr wallets
-- **Technical Details**:
-  - Implement NIP-07 browser extension support
-  - Add wallet connection UI
-  - Handle wallet events and state management
-  - Support multiple wallet types
-- **Implementation**:
-  - `js/nostr.js` - Nostr protocol handling
-  - `js/wallet.js` - Wallet connection logic
-  - Connection status indicators
-
-#### 2.3 Marketplace UI Components
-- **Goal**: Core marketplace functionality
-- **Components**:
-  - Item listing creation form
-  - Browse/search interface
-  - User profile management
-  - Transaction history
-  - Rating/review system
-- **Technical Details**:
-  - Component-based architecture
-  - State management with localStorage
-  - Real-time updates via WebSocket (future)
-  - Responsive grid layouts
 
 ### Phase 3: Enhanced API Features (Priority: MEDIUM)
 **Estimated Time**: 1-2 weeks
@@ -358,36 +383,70 @@ GET  /api/media/{id}/download
 
 ### Frontend Architecture
 
+#### Modern UI Design System:
+- **Color Palette**: Use modern, accessible color schemes with proper contrast ratios
+- **Typography**: Clean, readable fonts (Inter, Roboto, or system fonts)
+- **Spacing**: Consistent 8px grid system for margins and padding
+- **Shadows**: Subtle elevation with CSS box-shadow for depth
+- **Animations**: Smooth transitions (200-300ms) for all interactive elements
+- **Icons**: Consistent icon set (Heroicons, Lucide, or similar)
+
 #### Component Structure:
 ```
-src/
-  components/
-    auth/
+public/
+  index.html
+  css/
+    base/
+      reset.css
+      typography.css
+      colors.css
+    components/
+      buttons.css
+      cards.css
+      forms.css
+      navigation.css
+      modals.css
+    pages/
+      home.css
+      browse.css
+      profile.css
+    utilities/
+      spacing.css
+      animations.css
+  js/
+    components/
       WalletConnect.js
-      AuthGuard.js
-    marketplace/
       ListingCard.js
-      ListingForm.js
       SearchFilters.js
-    common/
-      Header.js
-      Footer.js
-      LoadingSpinner.js
-  pages/
-    Home.js
-    Browse.js
-    CreateListing.js
-    Profile.js
-    Transaction.js
-  services/
-    api.js
-    nostr.js
-    storage.js
-  utils/
-    validation.js
-    formatting.js
-    constants.js
+      Modal.js
+      Toast.js
+    pages/
+      Home.js
+      Browse.js
+      CreateListing.js
+      Profile.js
+    services/
+      api.js
+      nostr.js
+      storage.js
+    utils/
+      validation.js
+      formatting.js
+      animations.js
+  assets/
+    icons/
+    images/
+    fonts/
 ```
+
+#### Modern UI Features to Implement:
+- **Glassmorphism**: Subtle backdrop blur effects for modals and cards
+- **Micro-interactions**: Hover effects, button press animations, loading spinners
+- **Skeleton Loading**: Placeholder content while data loads
+- **Infinite Scroll**: Smooth loading of more content as user scrolls
+- **Search Suggestions**: Real-time search with autocomplete
+- **Image Galleries**: Lightbox for viewing listing images
+- **Progress Indicators**: Visual feedback for multi-step processes
 
 ## 🚀 Getting Started
 
@@ -425,17 +484,20 @@ src/
 
 ## 📊 Success Metrics
 
-### Phase 1 Success Criteria:
+### Phase 1 Success Criteria (Frontend Development):
+- [ ] Modern, rich UI is visually appealing and professional
+- [ ] Users can connect Nostr wallets seamlessly
+- [ ] Responsive design works on all device sizes
+- [ ] Core marketplace UI components are functional
+- [ ] Smooth animations and interactions implemented
+- [ ] Dark/light theme toggle working
+- [ ] Loading states and user feedback systems in place
+
+### Phase 2 Success Criteria (Security & Authentication):
 - [ ] All API endpoints require valid Nostr signatures
 - [ ] Rate limiting prevents abuse
 - [ ] Input validation blocks malicious data
 - [ ] Security audit passes
-
-### Phase 2 Success Criteria:
-- [ ] Users can connect Nostr wallets
-- [ ] Basic marketplace UI is functional
-- [ ] Mobile-responsive design
-- [ ] Core user flows work end-to-end
 
 ### Phase 3 Success Criteria:
 - [ ] Advanced search functionality
