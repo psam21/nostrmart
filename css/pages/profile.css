@@ -27,7 +27,10 @@
 .navbar .wallet-connect svg {
     width: 16px;
     height: 16px;
-    color: white;
+    color: white !important;
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
 }
 
 .navbar .wallet-connect .wallet-text {
