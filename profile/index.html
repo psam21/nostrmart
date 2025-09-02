@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - NostrMart</title>
+    <meta name="description" content="Your NostrMart profile - manage your listings, reviews, and marketplace activity">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/colors.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    <link rel="stylesheet" href="/css/utilities/spacing.css">
+    <link rel="stylesheet" href="/css/utilities/animations.css">
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/cards.css">
+    <link rel="stylesheet" href="/css/components/navigation.css">
+    <link rel="stylesheet" href="/css/pages/profile.css">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/js/app.js" as="script">
+    <link rel="preload" href="/js/components/Toast.js" as="script">
+    <link rel="preload" href="/js/components/WalletConnect.js" as="script">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" class="brand-link">
+                    <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    <span class="brand-text">NostrMart</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/browse" class="nav-link">Browse</a>
+                <a href="/create" class="nav-link">Create</a>
+                <a href="/profile" class="nav-link active">Profile</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                    <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+                
+                <button class="wallet-connect" id="wallet-connect">
+                    <span class="wallet-icon">💳</span>
+                    <span class="wallet-text">Connect Wallet</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Profile Header -->
+            <section class="profile-header">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-placeholder" id="user-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                        <button class="avatar-edit-btn" id="edit-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="profile-info">
+                        <h1 class="profile-name" id="user-name">Loading...</h1>
+                        <p class="profile-bio" id="user-bio">Connect your Nostr wallet to see your profile</p>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <span class="stat-number" id="listings-count">0</span>
+                                <span class="stat-label">Listings</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number" id="sales-count">0</span>
+                                <span class="stat-label">Sales</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number" id="rating-average">0.0</span>
+                                <span class="stat-label">Rating</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="btn btn-primary" id="edit-profile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5.5z"/>
+                            </svg>
+                            Edit Profile
+                        </button>
+                        <button class="btn btn-secondary" id="settings-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                            Settings
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Tabs -->
+            <section class="profile-tabs">
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="listings">My Listings</button>
+                    <button class="tab-btn" data-tab="purchases">Purchases</button>
+                    <button class="tab-btn" data-tab="reviews">Reviews</button>
+                    <button class="tab-btn" data-tab="activity">Activity</button>
+                </div>
+                
+                <div class="tab-content">
+                    <!-- My Listings Tab -->
+                    <div class="tab-panel active" id="listings-tab">
+                        <div class="listings-header">
+                            <h2>My Listings</h2>
+                            <button class="btn btn-primary" id="create-listing">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                Create New Listing
+                            </button>
+                        </div>
+                        <div class="listings-grid" id="user-listings">
+                            <!-- Listings will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Purchases Tab -->
+                    <div class="tab-panel" id="purchases-tab">
+                        <div class="purchases-header">
+                            <h2>Purchase History</h2>
+                        </div>
+                        <div class="purchases-list" id="user-purchases">
+                            <!-- Purchases will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Reviews Tab -->
+                    <div class="tab-panel" id="reviews-tab">
+                        <div class="reviews-header">
+                            <h2>Reviews & Ratings</h2>
+                        </div>
+                        <div class="reviews-list" id="user-reviews">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Tab -->
+                    <div class="tab-panel" id="activity-tab">
+                        <div class="activity-header">
+                            <h2>Recent Activity</h2>
+                        </div>
+                        <div class="activity-timeline" id="user-activity">
+                            <!-- Activity will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Profile Edit Modal -->
+    <div class="modal" id="profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button class="modal-close" id="close-profile-modal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="profile-form" id="profile-form">
+                    <div class="form-group">
+                        <label for="profile-name-input">Display Name</label>
+                        <input type="text" id="profile-name-input" class="form-input" placeholder="Enter your display name">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-bio-input">Bio</label>
+                        <textarea id="profile-bio-input" class="form-textarea" rows="4" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-location-input">Location</label>
+                        <input type="text" id="profile-location-input" class="form-input" placeholder="City, Country">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-website-input">Website</label>
+                        <input type="url" id="profile-website-input" class="form-input" placeholder="https://your-website.com">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-profile-edit">Cancel</button>
+                <button class="btn btn-primary" id="save-profile">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/components/Toast.js"></script>
+    <script src="/js/components/WalletConnect.js"></script>
+    <script src="/js/components/Modal.js"></script>
+    <script src="/js/services/api.js"></script>
+    <script src="/js/services/nostr.js"></script>
+    <script src="/js/services/storage.js"></script>
+    <script src="/js/pages/Profile.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
