@@ -24,7 +24,9 @@ class SupabaseClient:
         async with httpx.AsyncClient(
             timeout=httpx.Timeout(
                 connect=self.settings.HTTP_CONNECT_TIMEOUT,
-                read=self.settings.HTTP_READ_TIMEOUT
+                read=self.settings.HTTP_READ_TIMEOUT,
+                write=5.0,
+                pool=5.0
             )
         ) as client:
             try:
