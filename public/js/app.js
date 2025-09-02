@@ -155,21 +155,86 @@ class NostrMartApp {
             }
 
             // Fetch listings from API
-            const response = await window.apiService.getEvents({
-                kind: 1,
-                limit: 4
+            const response = await window.apiService.searchListings({
+                limit: 8,
+                sortBy: 'created_at',
+                sortOrder: 'desc'
             });
 
-            if (response.ok && response.data.events) {
-                this.renderListings(response.data.events, listingsContainer);
+            if (response.ok && response.data && Array.isArray(response.data)) {
+                this.renderListings(response.data, listingsContainer);
             } else {
-                this.showEmptyState(listingsContainer);
+                // Fallback to mock data if no real listings exist yet
+                this.renderMockListings(listingsContainer);
             }
 
         } catch (error) {
             console.error('Failed to load featured listings:', error);
-            this.showErrorState(listingsContainer, error);
+            // Fallback to mock data on error
+            this.renderMockListings(listingsContainer);
         }
+    }
+
+    /**
+     * Render mock listings as fallback
+     */
+    renderMockListings(container) {
+        const mockListings = [
+            {
+                id: 'mock-1',
+                title: 'Vintage Bitcoin T-Shirt',
+                description: 'Classic Bitcoin logo t-shirt from 2013. Perfect condition.',
+                price_sats: 50000,
+                category: 'Clothing',
+                condition: 'Excellent',
+                location: 'San Francisco, CA',
+                images: ['https://via.placeholder.com/300x200?text=Bitcoin+T-Shirt'],
+                tags: ['bitcoin', 'vintage', 'clothing'],
+                seller_pubkey: 'mock-seller-1',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'mock-2',
+                title: 'Satoshi Nakamoto Book Collection',
+                description: 'Complete collection of books about Bitcoin and cryptocurrency.',
+                price_sats: 150000,
+                category: 'Books',
+                condition: 'Good',
+                location: 'New York, NY',
+                images: ['https://via.placeholder.com/300x200?text=Bitcoin+Books'],
+                tags: ['books', 'bitcoin', 'education'],
+                seller_pubkey: 'mock-seller-2',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'mock-3',
+                title: 'Hardware Wallet - Ledger Nano S',
+                description: 'Secure hardware wallet for storing Bitcoin and other cryptocurrencies.',
+                price_sats: 80000,
+                category: 'Electronics',
+                condition: 'New',
+                location: 'Austin, TX',
+                images: ['https://via.placeholder.com/300x200?text=Hardware+Wallet'],
+                tags: ['hardware', 'wallet', 'security'],
+                seller_pubkey: 'mock-seller-3',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'mock-4',
+                title: 'Bitcoin Art Print',
+                description: 'Beautiful digital art print featuring Bitcoin logo and blockchain visualization.',
+                price_sats: 25000,
+                category: 'Art',
+                condition: 'New',
+                location: 'Los Angeles, CA',
+                images: ['https://via.placeholder.com/300x200?text=Bitcoin+Art'],
+                tags: ['art', 'bitcoin', 'digital'],
+                seller_pubkey: 'mock-seller-4',
+                created_at: new Date().toISOString()
+            }
+        ];
+        
+        this.renderListings(mockListings, container);
     }
 
     /**
@@ -197,8 +262,16 @@ class NostrMartApp {
         listingDiv.className = 'listing-card animate-fadeInUp';
         listingDiv.style.animationDelay = `${index * 100}ms`;
         
+        // Handle both new listing format and legacy Nostr event format
+        const title = listing.title || listing.content || 'Untitled Listing';
+        const description = listing.description || `Created by ${this.formatPubkey(listing.seller_pubkey || listing.pubkey)}`;
+        const price = listing.price_sats ? this.formatSats(listing.price_sats) : '0.001 BTC';
+        const category = listing.category || 'Digital Art';
+        const pubkey = listing.seller_pubkey || listing.pubkey;
+        const imageUrl = listing.images && listing.images.length > 0 ? listing.images[0] : null;
+        
         listingDiv.innerHTML = `
-            <div class="listing-image" style="background: linear-gradient(45deg, var(--color-primary), var(--color-secondary))">
+            <div class="listing-image" style="${imageUrl ? `background-image: url('${imageUrl}'); background-size: cover; background-position: center;` : 'background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));'}">
                 <div class="listing-overlay">
                     <button class="btn btn-primary btn-icon" aria-label="View listing">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -207,21 +280,28 @@ class NostrMartApp {
                         </svg>
                     </button>
                 </div>
+                ${listing.condition ? `<div class="listing-condition">${listing.condition}</div>` : ''}
             </div>
             <div class="listing-content">
-                <h3 class="listing-title">${this.escapeHtml(listing.content || 'Untitled Listing')}</h3>
-                <p class="listing-description">Created by ${this.formatPubkey(listing.pubkey)}</p>
+                <h3 class="listing-title">${this.escapeHtml(title)}</h3>
+                <p class="listing-description">${this.escapeHtml(description)}</p>
                 <div class="listing-meta">
-                    <span class="listing-price">0.001 BTC</span>
-                    <span class="listing-category">Digital Art</span>
+                    <span class="listing-price">${price}</span>
+                    <span class="listing-category">${this.escapeHtml(category)}</span>
                 </div>
+                ${listing.location ? `<div class="listing-location">📍 ${this.escapeHtml(listing.location)}</div>` : ''}
                 <div class="listing-footer">
                     <div class="listing-author">
-                        <div class="author-avatar">${this.getInitials(listing.pubkey)}</div>
-                        <span>${this.formatPubkey(listing.pubkey)}</span>
+                        <div class="author-avatar">${this.getInitials(pubkey)}</div>
+                        <span>${this.formatPubkey(pubkey)}</span>
                     </div>
                     <span class="listing-date">${this.formatDate(listing.created_at)}</span>
                 </div>
+                ${listing.tags && listing.tags.length > 0 ? `
+                    <div class="listing-tags">
+                        ${listing.tags.slice(0, 3).map(tag => `<span class="tag">${this.escapeHtml(tag)}</span>`).join('')}
+                    </div>
+                ` : ''}
             </div>
         `;
 
@@ -434,6 +514,19 @@ class NostrMartApp {
     }
 
     /**
+     * Format satoshis to readable format
+     */
+    formatSats(sats) {
+        if (sats >= 100000000) {
+            return `${(sats / 100000000).toFixed(2)} BTC`;
+        } else if (sats >= 1000) {
+            return `${(sats / 1000).toFixed(0)}k sats`;
+        } else {
+            return `${sats} sats`;
+        }
+    }
+
+    /**
      * Search functionality
      */
     handleSearch(query) {
@@ -458,17 +551,18 @@ class NostrMartApp {
             }
 
             // Perform search using API service
-            const response = await window.apiService.searchListings(query, {
+            const response = await window.apiService.searchListings({
+                query: query,
                 limit: 20
             });
 
-            if (response.ok && response.data.events) {
-                this.toast?.show(`Found ${response.data.events.length} results for "${query}"`, 'success');
+            if (response.ok && response.data && Array.isArray(response.data)) {
+                this.toast?.show(`Found ${response.data.length} results for "${query}"`, 'success');
                 
                 // Update the featured listings with search results
                 const listingsContainer = document.querySelector('#featured-listings');
                 if (listingsContainer) {
-                    this.renderListings(response.data.events, listingsContainer);
+                    this.renderListings(response.data, listingsContainer);
                 }
             } else {
                 this.toast?.show(`No results found for "${query}"`, 'info');

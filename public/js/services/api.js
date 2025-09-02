@@ -228,6 +228,90 @@ class ApiService {
     }
 
     /**
+     * Listings API Methods
+     */
+    async searchListings(params = {}) {
+        const queryParams = new URLSearchParams();
+        
+        if (params.query) queryParams.append('q', params.query);
+        if (params.category) queryParams.append('category', params.category);
+        if (params.minPrice) queryParams.append('min_price', params.minPrice);
+        if (params.maxPrice) queryParams.append('max_price', params.maxPrice);
+        if (params.location) queryParams.append('location', params.location);
+        if (params.tags) queryParams.append('tags', params.tags.join(','));
+        if (params.seller) queryParams.append('seller', params.seller);
+        if (params.limit) queryParams.append('limit', params.limit);
+        if (params.offset) queryParams.append('offset', params.offset);
+        if (params.sortBy) queryParams.append('sort_by', params.sortBy);
+        if (params.sortOrder) queryParams.append('sort_order', params.sortOrder);
+        
+        const queryString = queryParams.toString();
+        const url = queryString ? `/api/listings?${queryString}` : '/api/listings';
+        
+        return await this.request(url);
+    }
+
+    async getListingById(listingId) {
+        return await this.request(`/api/listings?id=${listingId}`);
+    }
+
+    async createListing(listingData) {
+        return await this.request('/api/listings', {
+            method: 'POST',
+            body: listingData
+        });
+    }
+
+    async updateListing(listingId, updateData) {
+        return await this.request(`/api/listings?id=${listingId}`, {
+            method: 'PATCH',
+            body: updateData
+        });
+    }
+
+    async deleteListing(listingId) {
+        return await this.request(`/api/listings?id=${listingId}`, {
+            method: 'DELETE'
+        });
+    }
+
+    /**
+     * Purchases API Methods
+     */
+    async getPurchasesByBuyer(buyerPubkey, limit = 20, offset = 0) {
+        return await this.request(`/api/purchases?buyer=${buyerPubkey}&limit=${limit}&offset=${offset}`);
+    }
+
+    async getPurchasesBySeller(sellerPubkey, limit = 20, offset = 0) {
+        return await this.request(`/api/purchases?seller=${sellerPubkey}&limit=${limit}&offset=${offset}`);
+    }
+
+    async createPurchase(purchaseData) {
+        return await this.request('/api/purchases', {
+            method: 'POST',
+            body: purchaseData
+        });
+    }
+
+    /**
+     * Reviews API Methods
+     */
+    async getListingReviews(listingId, limit = 20, offset = 0) {
+        return await this.request(`/api/reviews?listing_id=${listingId}&limit=${limit}&offset=${offset}`);
+    }
+
+    async getReviewsByUser(userPubkey, limit = 20, offset = 0) {
+        return await this.request(`/api/reviews?reviewee=${userPubkey}&limit=${limit}&offset=${offset}`);
+    }
+
+    async createReview(reviewData) {
+        return await this.request('/api/reviews', {
+            method: 'POST',
+            body: reviewData
+        });
+    }
+
+    /**
      * Health check
      */
     async healthCheck() {

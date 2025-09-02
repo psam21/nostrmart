@@ -101,3 +101,94 @@ class SupabaseClient:
     async def insert_media_object(self, media_data: Dict[str, Any]) -> Dict[str, Any]:
         """Insert a new media object"""
         return await self._make_request("POST", "media_objects", media_data)
+    
+    # Listings Methods
+    async def get_listing(self, listing_id: str) -> Dict[str, Any]:
+        """Get a specific listing by ID"""
+        endpoint = f"listings?id=eq.{listing_id}"
+        result = await self._make_request("GET", endpoint)
+        
+        if isinstance(result, list) and len(result) > 0:
+            return result[0]
+        return {"error": "Listing not found"}
+    
+    async def search_listings(self, query: Optional[str] = None, category: Optional[str] = None,
+                            min_price: Optional[int] = None, max_price: Optional[int] = None,
+                            location: Optional[str] = None, tags: Optional[List[str]] = None,
+                            seller_pubkey: Optional[str] = None, limit: int = 20, offset: int = 0,
+                            sort_by: str = "created_at", sort_order: str = "desc") -> Dict[str, Any]:
+        """Search listings with filters"""
+        endpoint = "listings"
+        params = []
+        
+        # Only show active listings by default
+        params.append("status=eq.active")
+        
+        if query:
+            params.append(f"or=(title.ilike.%{query}%,description.ilike.%{query}%)")
+        if category:
+            params.append(f"category=eq.{category}")
+        if min_price is not None:
+            params.append(f"price_sats=gte.{min_price}")
+        if max_price is not None:
+            params.append(f"price_sats=lte.{max_price}")
+        if location:
+            params.append(f"location.ilike.%{location}%")
+        if tags:
+            for tag in tags:
+                params.append(f"tags.cs.[\"{tag}\"]")
+        if seller_pubkey:
+            params.append(f"seller_pubkey=eq.{seller_pubkey}")
+        
+        params.append(f"limit={limit}")
+        params.append(f"offset={offset}")
+        params.append(f"order={sort_by}.{sort_order}")
+        
+        if params:
+            endpoint += "?" + "&".join(params)
+        
+        return await self._make_request("GET", endpoint)
+    
+    async def insert_listing(self, listing_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Insert a new listing"""
+        return await self._make_request("POST", "listings", listing_data)
+    
+    async def update_listing(self, listing_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update a listing"""
+        endpoint = f"listings?id=eq.{listing_id}"
+        return await self._make_request("PATCH", endpoint, update_data)
+    
+    async def delete_listing(self, listing_id: str) -> Dict[str, Any]:
+        """Delete a listing"""
+        endpoint = f"listings?id=eq.{listing_id}"
+        return await self._make_request("DELETE", endpoint)
+    
+    # Purchases Methods
+    async def insert_purchase(self, purchase_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Insert a new purchase"""
+        return await self._make_request("POST", "purchases", purchase_data)
+    
+    async def get_purchases_by_buyer(self, buyer_pubkey: str, limit: int = 20, offset: int = 0) -> Dict[str, Any]:
+        """Get purchases by buyer"""
+        endpoint = f"purchases?buyer_pubkey=eq.{buyer_pubkey}&limit={limit}&offset={offset}&order=created_at.desc"
+        return await self._make_request("GET", endpoint)
+    
+    async def get_purchases_by_seller(self, seller_pubkey: str, limit: int = 20, offset: int = 0) -> Dict[str, Any]:
+        """Get purchases by seller"""
+        endpoint = f"purchases?seller_pubkey=eq.{seller_pubkey}&limit={limit}&offset={offset}&order=created_at.desc"
+        return await self._make_request("GET", endpoint)
+    
+    # Reviews Methods
+    async def insert_review(self, review_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Insert a new review"""
+        return await self._make_request("POST", "reviews", review_data)
+    
+    async def get_listing_reviews(self, listing_id: str, limit: int = 20, offset: int = 0) -> Dict[str, Any]:
+        """Get reviews for a listing"""
+        endpoint = f"reviews?listing_id=eq.{listing_id}&limit={limit}&offset={offset}&order=created_at.desc"
+        return await self._make_request("GET", endpoint)
+    
+    async def get_reviews_by_reviewee(self, reviewee_pubkey: str, limit: int = 20, offset: int = 0) -> Dict[str, Any]:
+        """Get reviews for a user"""
+        endpoint = f"reviews?reviewee_pubkey=eq.{reviewee_pubkey}&limit={limit}&offset={offset}&order=created_at.desc"
+        return await self._make_request("GET", endpoint)

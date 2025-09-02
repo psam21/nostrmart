@@ -145,6 +145,20 @@
     opacity: 0.1;
 }
 
+.listing-condition {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .listing-content {
     padding: 1rem;
 }
@@ -227,6 +241,31 @@
 .listing-date {
     font-size: var(--font-size-xs);
     color: var(--color-text-tertiary);
+}
+
+.listing-location {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.listing-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+.tag {
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-weight: var(--font-weight-medium);
 }
 
 /* Category Card */
