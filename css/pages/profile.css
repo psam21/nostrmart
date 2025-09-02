@@ -28,9 +28,14 @@
     width: 16px;
     height: 16px;
     color: white !important;
-    fill: none;
-    stroke: white;
-    stroke-width: 2;
+    fill: none !important;
+    stroke: white !important;
+    stroke-width: 2 !important;
+}
+
+.navbar .wallet-connect svg * {
+    stroke: white !important;
+    fill: none !important;
 }
 
 .navbar .wallet-connect .wallet-text {
