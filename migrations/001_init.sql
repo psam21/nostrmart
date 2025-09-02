@@ -1,9 +1,6 @@
 -- NostrMart Database Schema
 -- Run this in your Supabase SQL editor
 
--- Enable Row Level Security
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
-
 -- Create nostr_events table
 CREATE TABLE IF NOT EXISTS nostr_events (
     id TEXT PRIMARY KEY,
