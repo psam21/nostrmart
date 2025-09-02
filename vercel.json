@@ -6,11 +6,11 @@
       "maxDuration": 10
     }
   },
-  "routes": [
-    { "src": "/api/health", "dest": "/api/health.py" },
-    { "src": "/api/nostr/events", "dest": "/api/nostr.py" },
-    { "src": "/api/nostr/event", "dest": "/api/nostr.py" },
-    { "src": "/api/media", "dest": "/api/media.py" }
+  "rewrites": [
+    { "source": "/api/health", "destination": "/api/health.py" },
+    { "source": "/api/nostr/events", "destination": "/api/nostr.py" },
+    { "source": "/api/nostr/event", "destination": "/api/nostr.py" },
+    { "source": "/api/media", "destination": "/api/media.py" }
   ],
   "headers": [
     {
