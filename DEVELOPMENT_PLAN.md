@@ -4,6 +4,32 @@
 
 NostrMart is a decentralized marketplace built on the Nostr protocol, deployed as serverless functions on Vercel with Supabase backend. This plan outlines the roadmap for taking the project from its current MVP state to a full-featured marketplace.
 
+## 🎯 Development Principles
+
+### Core Principles:
+- **Mobile-First Responsive Design**: Every page and component must work beautifully on both desktop and mobile
+- **Consistent Modern Experience**: Same rich, clean, professional experience across all devices and screen sizes
+- **Progressive Enhancement**: Start with core functionality, add features progressively
+- **Security First**: Implement authentication and validation early
+- **Manual Testing**: All testing will be manual with comprehensive checklists
+- **Documentation**: Keep docs updated with each feature
+- **Performance**: Optimize for serverless constraints
+
+### Responsive Design Standards:
+- **Breakpoints**: Mobile (320px+), Tablet (768px+), Desktop (1024px+), Large (1440px+)
+- **Touch-Friendly**: Minimum 44px touch targets, adequate spacing between interactive elements
+- **Readable Typography**: Scalable font sizes that remain legible on all screen sizes
+- **Adaptive Layouts**: CSS Grid and Flexbox for flexible, responsive layouts
+- **Performance**: Optimized images and assets for different screen densities
+- **Cross-Device Consistency**: Identical functionality and visual quality across all devices
+
+### Universal Design Requirements:
+- **All Phases**: Every feature developed must be responsive and mobile-optimized
+- **Rich Interactions**: Smooth animations, micro-interactions, and feedback on all devices
+- **Modern Aesthetics**: Clean, professional design that works on any screen size
+- **Accessibility**: WCAG 2.1 AA compliance for all components
+- **Performance**: Fast loading and smooth interactions on mobile networks
+
 ## 🏗️ Current Architecture
 
 ### Backend Stack
@@ -481,6 +507,11 @@ public/
 - **Documentation**: Update README and API docs for new features
 - **Security**: Always validate inputs and implement proper authentication
 - **Performance**: Consider serverless function limits and optimize accordingly
+- **Responsive Design**: Every feature must work beautifully on mobile, tablet, and desktop
+- **Mobile-First**: Design and develop for mobile first, then enhance for larger screens
+- **Cross-Device Consistency**: Maintain identical functionality and visual quality across all devices
+- **Touch-Friendly**: Ensure all interactive elements meet minimum touch target sizes (44px)
+- **Performance**: Optimize for mobile networks and slower devices
 
 ## 📊 Success Metrics
 
@@ -498,24 +529,28 @@ public/
 - [ ] Rate limiting prevents abuse
 - [ ] Input validation blocks malicious data
 - [ ] Security audit passes
+- [ ] **Responsive**: All security features work seamlessly on mobile and desktop
 
 ### Phase 3 Success Criteria:
 - [ ] Advanced search functionality
 - [ ] File upload and storage working
 - [ ] Multiple event kinds supported
 - [ ] API performance optimized
+- [ ] **Responsive**: All enhanced features provide rich mobile experience
 
 ### Phase 4 Success Criteria:
 - [ ] Comprehensive monitoring in place
 - [ ] API documentation complete
 - [ ] Manual testing procedures documented and followed
 - [ ] 99.9% uptime achieved
+- [ ] **Responsive**: Monitoring dashboards work perfectly on all devices
 
 ### Phase 5 Success Criteria:
 - [ ] Payment system functional
 - [ ] Reputation system active
 - [ ] Advanced discovery features
 - [ ] User engagement metrics positive
+- [ ] **Responsive**: All marketplace features provide consistent rich experience across devices
 
 ## 🧪 Manual Testing Procedures
 
@@ -533,11 +568,14 @@ All testing will be performed manually using comprehensive checklists and proced
 - [ ] **Performance**: Check response times under normal load
 
 #### Frontend Testing
-- [ ] **Wallet Connection**: Test Nostr wallet integration
-- [ ] **User Flows**: Complete end-to-end user journeys
-- [ ] **Responsive Design**: Test on mobile, tablet, and desktop
-- [ ] **Cross-Browser**: Test on Chrome, Firefox, Safari, Edge
+- [ ] **Wallet Connection**: Test Nostr wallet integration on all devices
+- [ ] **User Flows**: Complete end-to-end user journeys on mobile and desktop
+- [ ] **Responsive Design**: Test on mobile (320px+), tablet (768px+), desktop (1024px+), large (1440px+)
+- [ ] **Cross-Browser**: Test on Chrome, Firefox, Safari, Edge on all device types
 - [ ] **Accessibility**: Verify keyboard navigation and screen reader compatibility
+- [ ] **Touch Interactions**: Test touch targets, gestures, and mobile-specific interactions
+- [ ] **Performance**: Verify fast loading and smooth animations on mobile networks
+- [ ] **Visual Consistency**: Ensure identical rich experience across all screen sizes
 
 #### Security Testing
 - [ ] **Input Validation**: Test with malicious inputs
