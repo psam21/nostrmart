@@ -127,6 +127,107 @@ class ApiService {
     }
 
     /**
+     * User Profile Methods
+     */
+    async getUserProfile(pubkey) {
+        return await this.request(`/api/user/${pubkey}/profile`);
+    }
+
+    async getUserStats(pubkey) {
+        return await this.request(`/api/user/${pubkey}/stats`);
+    }
+
+    async getUserListings(pubkey) {
+        return await this.request(`/api/user/${pubkey}/listings`);
+    }
+
+    async getUserPurchases(pubkey) {
+        return await this.request(`/api/user/${pubkey}/purchases`);
+    }
+
+    async getUserReviews(pubkey) {
+        return await this.request(`/api/user/${pubkey}/reviews`);
+    }
+
+    async getUserActivity(pubkey) {
+        return await this.request(`/api/user/${pubkey}/activity`);
+    }
+
+    /**
+     * Enhanced Listing Methods
+     */
+    async searchListings(query, options = {}) {
+        const params = new URLSearchParams({
+            q: query,
+            ...options
+        });
+        return await this.request(`/api/search?${params}`);
+    }
+
+    async getListingById(listingId) {
+        return await this.request(`/api/listing/${listingId}`);
+    }
+
+    async createListing(listingData) {
+        return await this.request('/api/listing', {
+            method: 'POST',
+            body: listingData
+        });
+    }
+
+    async updateListing(listingId, listingData) {
+        return await this.request(`/api/listing/${listingId}`, {
+            method: 'PUT',
+            body: listingData
+        });
+    }
+
+    async deleteListing(listingId) {
+        return await this.request(`/api/listing/${listingId}`, {
+            method: 'DELETE'
+        });
+    }
+
+    /**
+     * Messaging Methods
+     */
+    async sendMessage(recipientPubkey, message) {
+        return await this.request('/api/message', {
+            method: 'POST',
+            body: {
+                recipient: recipientPubkey,
+                content: message
+            }
+        });
+    }
+
+    async getMessages(conversationId) {
+        return await this.request(`/api/messages/${conversationId}`);
+    }
+
+    async getConversations() {
+        return await this.request('/api/conversations');
+    }
+
+    /**
+     * Rating and Review Methods
+     */
+    async createReview(listingId, rating, review) {
+        return await this.request('/api/review', {
+            method: 'POST',
+            body: {
+                listing_id: listingId,
+                rating: rating,
+                content: review
+            }
+        });
+    }
+
+    async getListingReviews(listingId) {
+        return await this.request(`/api/listing/${listingId}/reviews`);
+    }
+
+    /**
      * Health check
      */
     async healthCheck() {
