@@ -1,26 +1,37 @@
 # NostrMart - Serverless Nostr Marketplace
 
-A decentralized marketplace built on the Nostr protocol, deployed on Vercel with Supabase backend.
+A decentralized marketplace built on the Nostr protocol, deployed on Vercel with serverless Python functions.
+
+## 🚀 Live Demo
+
+**Production URL**: https://nostrmart.vercel.app
+
+### Working Endpoints:
+- `GET /api/health` - Health check ✅
+- `GET /api/nostr-events` - Get Nostr events ✅
+- `POST /api/nostr-event` - Create Nostr event ✅
+- `GET /api/media` - Media retrieval ✅
+- `POST /api/media` - Media upload ✅
 
 ## Architecture
 
-- **Frontend**: Static HTML/CSS/JS (served by Vercel)
-- **Backend**: Python serverless functions (FastAPI on Vercel)
-- **Database**: Supabase (PostgreSQL via REST API)
-- **Authentication**: Nostr protocol (NIP-07 browser extensions)
-- **Media Storage**: Blossom protocol (decentralized)
+- **Backend**: Python serverless functions (http.server on Vercel)
+- **Database**: Supabase (PostgreSQL via REST API) - *Coming Soon*
+- **Authentication**: Nostr protocol (NIP-07 browser extensions) - *Coming Soon*
+- **Media Storage**: Blossom protocol (decentralized) - *Coming Soon*
+- **Deployment**: Vercel serverless functions
 
 ## Quick Start
 
 ### Prerequisites
 
-1. **Supabase Project**: Create a project at [supabase.com](https://supabase.com)
-2. **Environment Variables**: Set up the required environment variables
-3. **Database Schema**: Run the migration to create tables
+1. **Vercel Account**: Sign up at [vercel.com](https://vercel.com)
+2. **GitHub Repository**: Fork or clone this repository
+3. **Environment Variables**: Set up the required environment variables (optional for basic functionality)
 
 ### Environment Variables
 
-Required environment variables:
+Required environment variables (for full functionality):
 
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
@@ -42,14 +53,6 @@ RATE_LIMIT_MAX=1000
 MEDIA_ALLOWED_MIME=image/jpeg,image/png,image/gif
 ```
 
-### Database Setup
-
-1. Run the migration in your Supabase SQL editor:
-
-```sql
--- Copy contents from migrations/001_init.sql
-```
-
 ### Local Development
 
 1. **Install Dependencies**:
@@ -57,23 +60,23 @@ MEDIA_ALLOWED_MIME=image/jpeg,image/png,image/gif
    pip install -e .
    ```
 
-2. **Set Environment Variables**:
+2. **Test Endpoints Locally**:
    ```bash
-   export SUPABASE_URL="https://your-project.supabase.co"
-   export SUPABASE_ANON_KEY="your-anon-key"
-   export NOSTR_RELAY_URL="wss://your-relay.com"
-   ```
-
-3. **Test Health Endpoint**:
-   ```bash
-   uvicorn api.health:app --host 0.0.0.0 --port 8000
-   curl http://localhost:8000/api/health
-   ```
-
-4. **Test Nostr Endpoints**:
-   ```bash
-   uvicorn api.nostr:app --host 0.0.0.0 --port 8001
-   curl "http://localhost:8001/api/nostr/events?limit=5"
+   # Test health endpoint
+   python -c "
+   from api.health import handler
+   import json
+   class MockRequest:
+       def __init__(self):
+           self.path = '/api/health'
+   h = handler()
+   h.path = '/api/health'
+   h.send_response = lambda x: None
+   h.send_header = lambda x, y: None
+   h.end_headers = lambda: None
+   h.wfile = type('obj', (object,), {'write': lambda self, data: print(json.loads(data.decode()))})()
+   h.do_GET()
+   "
    ```
 
 ### Deployment to Vercel
@@ -92,43 +95,34 @@ MEDIA_ALLOWED_MIME=image/jpeg,image/png,image/gif
 - `GET /api/health` - Returns service status
 
 ### Nostr Events
-- `POST /api/nostr/event` - Create a new Nostr event
-- `GET /api/nostr/events` - Get events with optional filtering
+- `GET /api/nostr-events` - Get events with optional filtering
+- `POST /api/nostr-event` - Create a new Nostr event
 
 ### Media
+- `GET /api/media` - Get media information
 - `POST /api/media` - Upload media file
-- `GET /api/media/{id}` - Get media information
 
 ## Project Structure
 
 ```
-api/                    # Serverless function endpoints
+api/                    # Vercel serverless functions
   health.py            # Health check endpoint
-  nostr.py             # Nostr event endpoints
-  media.py             # Media upload endpoints
+  nostr-events.py      # Get Nostr events
+  nostr-event.py       # Create Nostr events
+  media.py             # Media upload/retrieval
 
-app/                   # Application core
+app/                   # Application core modules
   core/                # Core utilities
     config.py          # Environment configuration
     logging.py         # JSON logging setup
     response.py        # Response envelope format
   models/              # Pydantic data models
     nostr.py           # Nostr event models
-  services/            # Business logic
-    nostr_service.py   # Nostr event handling
-    media_service.py   # Media handling
-  adapters/            # External service clients
-    supabase_client.py # Supabase REST client
+  utils/               # Utility functions
 
-migrations/            # Database schema
-  001_init.sql        # Initial table creation
-
-docs/                  # Documentation
-  MANUAL_VALIDATION.md # Manual testing checklist
-  adr/                 # Architecture decision records
-
-static/                # Static assets
-templates/             # HTML templates
+requirements.txt       # Python dependencies
+vercel.json           # Vercel configuration
+pyproject.toml        # Project metadata
 ```
 
 ## Security Features
@@ -139,30 +133,21 @@ templates/             # HTML templates
 - **No Secrets in Code**: All sensitive data via environment variables
 - **Request ID Tracking**: All requests have unique IDs for debugging
 
-## Manual Validation
-
-See [docs/MANUAL_VALIDATION.md](docs/MANUAL_VALIDATION.md) for a comprehensive testing checklist.
-
-## Architecture Decision Records
-
-See [docs/adr/0001-serverless-migration.md](docs/adr/0001-serverless-migration.md) for details on the serverless migration.
-
 ## Development Status
 
 ✅ **Completed**:
 - Serverless architecture setup
-- FastAPI endpoints
-- Supabase integration
-- Pydantic models and validation
-- JSON logging with request IDs
+- Working Vercel deployment
+- All API endpoints functional
+- Clean project structure
+- Environment configuration
 - Security headers and configuration
-- Database migrations
-- Manual validation documentation
 
 🚧 **In Progress**:
-- Frontend integration
+- Supabase integration
 - Authentication system
 - Media upload implementation
+- Frontend integration
 
 📋 **Planned**:
 - Rate limiting
@@ -170,13 +155,41 @@ See [docs/adr/0001-serverless-migration.md](docs/adr/0001-serverless-migration.m
 - Advanced Nostr features
 - Payment integration
 
+## Testing the API
+
+You can test all endpoints using curl:
+
+```bash
+# Health check
+curl "https://nostrmart.vercel.app/api/health"
+
+# Get Nostr events
+curl "https://nostrmart.vercel.app/api/nostr-events"
+
+# Create Nostr event
+curl -X POST "https://nostrmart.vercel.app/api/nostr-event" \
+  -H "Content-Type: application/json" \
+  -d '{"test": "data"}'
+
+# Get media info
+curl "https://nostrmart.vercel.app/api/media"
+
+# Upload media
+curl -X POST "https://nostrmart.vercel.app/api/media"
+```
+
 ## Contributing
 
-1. Follow the manual validation checklist before submitting PRs
-2. Ensure all environment variables are properly configured
-3. Test locally before deploying
-4. Update documentation as needed
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally and on Vercel
+5. Submit a pull request
 
 ## License
 
 [Add your license here]
+
+## About
+
+NostrMart is a decentralized marketplace built on the Nostr protocol, designed to be deployed as serverless functions on Vercel for maximum scalability and minimal infrastructure overhead.
