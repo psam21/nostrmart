@@ -4,6 +4,12 @@ import os
 app = FastAPI()
 
 
+@app.get("/")
+async def get_media_root():
+    """Root endpoint for media API"""
+    return {"message": "Media API is running", "endpoints": ["POST /", "GET /{media_id}"]}
+
+
 @app.post("/")
 async def upload_media(
     file: UploadFile = File(...),

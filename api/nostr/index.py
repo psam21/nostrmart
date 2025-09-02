@@ -5,6 +5,12 @@ app = FastAPI()
 
 
 @app.get("/")
+async def get_nostr_root():
+    """Root endpoint for nostr API"""
+    return {"message": "Nostr API is running", "endpoints": ["/events", "/event"]}
+
+
+@app.get("/events")
 async def get_nostr_events(
     pubkey: str = Query(None, description="Filter by public key"),
     kind: int = Query(None, description="Filter by event kind"),
