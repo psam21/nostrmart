@@ -12,7 +12,7 @@
     },
     {
       "source": "/profile",
-      "destination": "/profile.html"
+      "destination": "/public/profile.html"
     }
   ],
   "github": {
