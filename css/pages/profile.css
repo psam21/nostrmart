@@ -3,6 +3,37 @@
  * Modern, responsive profile page with advanced features
  */
 
+/* Fix wallet connect button on profile page */
+.navbar .wallet-connect {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-primary);
+    color: white;
+    border: 1px solid var(--color-primary);
+    border-radius: 2rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all 0.2s ease;
+    min-height: 40px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    max-width: none;
+    width: auto;
+}
+
+.navbar .wallet-connect svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+.navbar .wallet-connect .wallet-text {
+    color: white;
+}
+
 /* Profile Header */
 .profile-header {
     margin-bottom: 2rem;
