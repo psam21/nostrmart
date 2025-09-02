@@ -4,7 +4,7 @@ import os
 app = FastAPI()
 
 
-@app.get("/api/nostr/events")
+@app.get("/")
 async def get_nostr_events(
     pubkey: str = Query(None, description="Filter by public key"),
     kind: int = Query(None, description="Filter by event kind"),
@@ -24,7 +24,7 @@ async def get_nostr_events(
     }
 
 
-@app.post("/api/nostr/event")
+@app.post("/event")
 async def create_nostr_event(event_data: dict):
     """Create a new Nostr event"""
     # For now, return a simple response
