@@ -11,10 +11,6 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/profile",
-      "destination": "/public/profile.html"
-    },
-    {
       "source": "/(.*)",
       "destination": "/public/$1"
     }
