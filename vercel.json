@@ -9,6 +9,10 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
+    },
+    {
+      "source": "/profile",
+      "destination": "/profile.html"
     }
   ],
   "github": {
