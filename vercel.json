@@ -4,5 +4,27 @@
     "api/*.py": {
       "maxDuration": 10
     }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/profile",
+      "destination": "/public/profile.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/public/$1"
+    }
+  ],
+  "github": {
+    "enabled": false
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
   }
 }
