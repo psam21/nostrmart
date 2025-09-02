@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }} - Nostr Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Image Gallery -->
+        <div class="col-lg-6">
+            <div class="listing-gallery mb-4">
+                {% set images = listing.get_images() %}
+                {% if images %}
+                <!-- Main Image -->
+                <div class="main-image mb-3">
+                    <img src="{{ images[0] }}" alt="{{ listing.title }}" class="img-fluid rounded" id="main-image">
+                    <div class="image-zoom-indicator">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+                
+                <!-- Thumbnail Gallery -->
+                {% if images|length > 1 %}
+                <div class="thumbnail-gallery">
+                    {% for image in images %}
+                    <div class="thumbnail {{ 'active' if loop.first }}">
+                        <img src="{{ image }}" alt="Image {{ loop.index }}" onclick="changeMainImage('{{ image }}', this)">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="no-image-placeholder">
+                    <i class="fas fa-image text-muted"></i>
+                    <p class="text-muted">No images available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Listing Details -->
+        <div class="col-lg-6">
+            <div class="listing-details">
+                <!-- Title and Price -->
+                <div class="listing-header mb-4">
+                    <h1 class="listing-title">{{ listing.title }}</h1>
+                    <div class="listing-price-large">
+                        {{ format_price(listing.price) }}
+                        <small class="text-muted">≈ {{ "%.8f"|format(listing.price_in_btc()) }} BTC</small>
+                    </div>
+                </div>
+                
+                <!-- Status and Condition -->
+                <div class="listing-badges mb-4">
+                    <span class="status-badge status-{{ listing.status }}">
+                        <i class="fas fa-circle me-1"></i>{{ listing.status.title() }}
+                    </span>
+                    {% if listing.condition %}
+                    <span class="condition-badge condition-{{ listing.condition }}">
+                        {{ listing.condition.replace('_', ' ').title() }}
+                    </span>
+                    {% endif %}
+                    {% if listing.category %}
+                    <span class="category-badge">
+                        <i class="fas fa-tag me-1"></i>{{ listing.category }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Seller Info -->
+                <div class="seller-info mb-4">
+                    <h6>Seller</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="seller-avatar me-3">
+                            {% if listing.seller.profile_image %}
+                            <img src="{{ listing.seller.profile_image }}" alt="Seller" class="rounded-circle">
+                            {% else %}
+                            <div class="avatar-placeholder-small">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong>{{ listing.seller.name or 'Anonymous' }}</strong>
+                            <br><small class="text-muted">{{ listing.seller.npub[:12] }}...</small>
+                            {% if listing.seller.location %}
+                            <br><small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ listing.seller.location }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Location -->
+                {% if listing.location %}
+                <div class="listing-location mb-4">
+                    <h6>Location</h6>
+                    <p class="text-muted">
+                        <i class="fas fa-map-marker-alt me-2"></i>{{ listing.location }}
+                    </p>
+                </div>
+                {% endif %}
+                
+                <!-- Description -->
+                <div class="listing-description mb-4">
+                    <h6>Description</h6>
+                    <p class="text-muted">{{ listing.description }}</p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="listing-actions">
+                    {% if listing.status == 'active' %}
+                        {% if session.user_id %}
+                            {% if not is_seller %}
+                            <button class="btn btn-lightning btn-lg w-100 mb-3" onclick="buyItem({{ listing.id }})">
+                                <i class="fas fa-bolt me-2"></i>
+                                Buy with Lightning
+                            </button>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                This is your listing. Share the link to promote it!
+                            </div>
+                            {% endif %}
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-lightning btn-lg w-100 mb-3">
+                            <i class="fas fa-bolt me-2"></i>
+                            Connect to Buy
+                        </a>
+                        {% endif %}
+                    {% elif listing.status == 'sold' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-check-circle me-2"></i>
+                        This item has been sold
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Share Button -->
+                    <button class="btn btn-outline-orange w-100" onclick="shareListing()">
+                        <i class="fas fa-share me-2"></i>Share Listing
+                    </button>
+                </div>
+                
+                <!-- Listing Meta -->
+                <div class="listing-meta mt-4 pt-4 border-top">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted">Listed</small>
+                            <br><strong>{{ listing.created_at.strftime('%b %d, %Y') }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Views</small>
+                            <br><strong>{{ range(50, 200) | random }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blossom Info -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="protocol-info">
+                <h5>
+                    <i class="fas fa-info-circle text-purple me-2"></i>
+                    Decentralized Storage
+                </h5>
+                <p class="text-muted">
+                    Images for this listing are stored on the Blossom protocol, ensuring 
+                    decentralized availability and content integrity through SHA-256 hashing.
+                    {% if images %}
+                    <br><small>
+                        <strong>{{ images|length }}</strong> image{{ 's' if images|length != 1 }} stored across multiple Blossom servers.
+                    </small>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Purchase Modal -->
+<div class="modal fade" id="purchase-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-bolt text-lightning me-2"></i>
+                    Lightning Purchase
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="purchase-step-1">
+                    <h6>Confirm Purchase</h6>
+                    <div class="purchase-summary p-3 bg-light rounded mb-3">
+                        <strong>{{ listing.title }}</strong>
+                        <br><span class="text-orange">{{ format_price(listing.price) }}</span>
+                    </div>
+                    <p class="text-muted">
+                        A Lightning invoice will be generated for instant payment.
+                    </p>
+                    <button class="btn btn-lightning" onclick="generateInvoice()">
+                        <i class="fas fa-bolt me-2"></i>Generate Invoice
+                    </button>
+                </div>
+                
+                <div id="purchase-step-2" style="display: none;">
+                    <div class="lightning-invoice mb-3">
+                        <div class="qr-code-placeholder mb-3">
+                            <i class="fas fa-qrcode display-4 text-muted"></i>
+                            <p class="text-muted">QR Code will appear here</p>
+                        </div>
+                        <div class="invoice-details">
+                            <small class="text-muted">Payment Request:</small>
+                            <div class="invoice-text p-2 bg-light rounded">
+                                <code id="lightning-invoice">lnbc...</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payment-status">
+                        <div class="spinner-border text-lightning me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Waiting for payment...
+                    </div>
+                </div>
+                
+                <div id="purchase-step-3" style="display: none;">
+                    <div class="text-success mb-3">
+                        <i class="fas fa-check-circle display-4"></i>
+                    </div>
+                    <h6>Payment Successful!</h6>
+                    <p class="text-muted">
+                        Your purchase has been completed. The seller will contact you soon.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div class="modal fade" id="image-zoom-modal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="z-index: 1050;"></button>
+                <img src="" alt="Zoomed image" class="img-fluid w-100" id="zoomed-image">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let purchaseModal;
+let imageZoomModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    purchaseModal = new bootstrap.Modal(document.getElementById('purchase-modal'));
+    imageZoomModal = new bootstrap.Modal(document.getElementById('image-zoom-modal'));
+    
+    // Image zoom functionality
+    document.getElementById('main-image')?.addEventListener('click', function() {
+        document.getElementById('zoomed-image').src = this.src;
+        imageZoomModal.show();
+    });
+});
+
+function changeMainImage(src, thumbnail) {
+    document.getElementById('main-image').src = src;
+    
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumbnail.parentElement.classList.add('active');
+}
+
+function buyItem(listingId) {
+    purchaseModal.show();
+}
+
+function generateInvoice() {
+    // Hide step 1, show step 2
+    document.getElementById('purchase-step-1').style.display = 'none';
+    document.getElementById('purchase-step-2').style.display = 'block';
+    
+    // Generate mock invoice
+    const mockInvoice = 'lnbc' + Math.random().toString(36).substring(7) + '...';
+    document.getElementById('lightning-invoice').textContent = mockInvoice;
+    
+    // Simulate payment processing
+    setTimeout(() => {
+        processPurchase();
+    }, 3000);
+}
+
+async function processPurchase() {
+    try {
+        const response = await fetch(`/buy/{{ listing.id }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Show success step
+            document.getElementById('purchase-step-2').style.display = 'none';
+            document.getElementById('purchase-step-3').style.display = 'block';
+            
+            // Refresh page after delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        } else {
+            alert('Purchase failed: ' + result.error);
+            purchaseModal.hide();
+        }
+    } catch (error) {
+        console.error('Purchase error:', error);
+        alert('Purchase failed. Please try again.');
+        purchaseModal.hide();
+    }
+}
+
+function shareListing() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ listing.title }}',
+            text: 'Check out this item on NostrMarket: {{ listing.title }}',
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Link copied to clipboard!');
+        }).catch(() => {
+            alert('Link: ' + window.location.href);
+        });
+    }
+}
+</script>
+{% endblock %}

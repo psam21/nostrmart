@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nostr Marketplace{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-orange" href="{{ url_for('index') }}">
+                <i class="fas fa-bolt me-2"></i>NostrMarket
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('search') }}">
+                            <i class="fas fa-search me-1"></i>Browse
+                        </a>
+                    </li>
+                    {% if session.user_id %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_listing') }}">
+                            <i class="fas fa-plus me-1"></i>Sell
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <!-- Search Form -->
+                <form class="d-flex me-3" action="{{ url_for('search') }}" method="GET">
+                    <div class="input-group">
+                        <input class="form-control form-control-sm" type="search" name="q" placeholder="Search items..." value="{{ request.args.get('q', '') }}">
+                        <button class="btn btn-outline-orange btn-sm" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- User Menu -->
+                <ul class="navbar-nav">
+                    {% if session.user_id %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="d-none d-md-inline">{{ session.npub[:12] }}...</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="btn btn-orange btn-sm" href="{{ url_for('login') }}">
+                            <i class="fas fa-bolt me-1"></i>Connect Nostr
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container mt-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-orange mb-3">
+                        <i class="fas fa-bolt me-2"></i>NostrMarket
+                    </h5>
+                    <p class="text-muted small">
+                        Decentralized marketplace powered by Nostr and Bitcoin Lightning.
+                        Trade freely with cryptographic authentication and instant payments.
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="mb-3">Features</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="#" class="text-muted text-decoration-none">Nostr Authentication</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Blossom Media Storage</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Lightning Payments</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Decentralized</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="mb-3">Protocol</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="https://nostr.com" class="text-muted text-decoration-none" target="_blank">About Nostr</a></li>
+                        <li><a href="https://github.com/hzrd149/blossom" class="text-muted text-decoration-none" target="_blank">Blossom Protocol</a></li>
+                        <li><a href="https://lightning.network" class="text-muted text-decoration-none" target="_blank">Lightning Network</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted small mb-0">
+                        &copy; 2025 NostrMarket. Built with ⚡ by the Nostr community.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        Powered by 
+                        <span class="text-orange">Nostr</span> • 
+                        <span class="text-purple">Blossom</span> • 
+                        <span class="text-lightning">Lightning</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Nostr Tools -->
+    <script src="{{ url_for('static', filename='js/nostr-tools.min.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nostr-auth.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

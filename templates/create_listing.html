@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Create Listing - Nostr Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="create-listing-card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        <i class="fas fa-plus text-orange me-2"></i>
+                        Create New Listing
+                    </h2>
+                    <p class="text-muted mb-0">Share your item with the Nostr community</p>
+                </div>
+                
+                <form action="{{ url_for('create_listing') }}" method="POST" enctype="multipart/form-data" id="listing-form">
+                    <div class="card-body">
+                        <!-- Basic Information -->
+                        <div class="section-header">
+                            <h5>Basic Information</h5>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="title" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" required 
+                                       placeholder="What are you selling?" maxlength="200">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="price" class="form-label">Price (BTC) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₿</span>
+                                    <input type="number" class="form-control" id="price" name="price" required 
+                                           step="0.00000001" min="0.00000001" placeholder="0.001">
+                                </div>
+                                <div class="form-text">
+                                    <span id="price-sats">0 sats</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required
+                                      placeholder="Describe your item in detail..."></textarea>
+                        </div>
+                        
+                        <!-- Category and Condition -->
+                        <div class="section-header">
+                            <h5>Category & Condition</h5>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">Select category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="condition" class="form-label">Condition</label>
+                                <select class="form-select" id="condition" name="condition">
+                                    <option value="">Select condition</option>
+                                    {% for value, label in conditions %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="City, Country">
+                        </div>
+                        
+                        <!-- Images -->
+                        <div class="section-header">
+                            <h5>Images</h5>
+                            <p class="text-muted small">Upload images via Blossom protocol. First image will be the main photo.</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Photos</label>
+                            <input type="file" class="form-control" id="images" name="images" 
+                                   multiple accept="image/*" onchange="previewImages(this)">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Supports JPG, PNG, WebP. Max 10MB per image. Images stored on Blossom servers.
+                            </div>
+                        </div>
+                        
+                        <div id="image-preview" class="image-preview mb-3"></div>
+                        
+                        <!-- Blossom Status -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-cloud text-purple me-2"></i>
+                            <strong>Blossom Protocol:</strong> Your images will be stored on decentralized Blossom servers 
+                            and addressed by their SHA-256 hash for integrity and availability.
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                            <button type="submit" class="btn btn-orange" id="submit-btn">
+                                <i class="fas fa-upload me-2"></i>Create Listing
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Progress Modal -->
+<div class="modal fade" id="upload-modal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <div class="mb-3">
+                    <i class="fas fa-cloud-upload-alt text-orange display-4"></i>
+                </div>
+                <h5>Uploading to Blossom</h5>
+                <p class="text-muted">Storing your images on decentralized servers...</p>
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-orange" 
+                         role="progressbar" style="width: 0%" id="upload-progress"></div>
+                </div>
+                <small class="text-muted" id="upload-status">Preparing upload...</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let uploadModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    uploadModal = new bootstrap.Modal(document.getElementById('upload-modal'));
+    
+    // Price converter
+    document.getElementById('price').addEventListener('input', function() {
+        const btcPrice = parseFloat(this.value) || 0;
+        const satoshis = Math.round(btcPrice * 100000000);
+        document.getElementById('price-sats').textContent = satoshis.toLocaleString() + ' sats';
+    });
+    
+    // Form submission with upload progress
+    document.getElementById('listing-form').addEventListener('submit', function(e) {
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const price = parseFloat(document.getElementById('price').value);
+        
+        if (!title || !description || !price || price <= 0) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        // Show upload modal if images are selected
+        const images = document.getElementById('images').files;
+        if (images.length > 0) {
+            uploadModal.show();
+            simulateUploadProgress();
+        }
+    });
+});
+
+function previewImages(input) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = '';
+    
+    if (input.files) {
+        Array.from(input.files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${index + 1}">
+                        <div class="preview-info">
+                            <small>${file.name}</small>
+                            <br><small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                            ${index === 0 ? '<br><small class="text-orange"><i class="fas fa-star me-1"></i>Main photo</small>' : ''}
+                        </div>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+}
+
+function simulateUploadProgress() {
+    const progressBar = document.getElementById('upload-progress');
+    const statusText = document.getElementById('upload-status');
+    let progress = 0;
+    
+    const steps = [
+        'Connecting to Blossom servers...',
+        'Calculating SHA-256 hashes...',
+        'Uploading to blossom.primal.net...',
+        'Verifying upload integrity...',
+        'Creating listing...'
+    ];
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 100) progress = 100;
+        
+        progressBar.style.width = progress + '%';
+        
+        const stepIndex = Math.floor((progress / 100) * steps.length);
+        if (stepIndex < steps.length) {
+            statusText.textContent = steps[stepIndex];
+        }
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            statusText.textContent = 'Upload complete!';
+        }
+    }, 500);
+}
+
+// Drag and drop for images
+const imageInput = document.getElementById('images');
+const dropZone = imageInput.parentElement;
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    dropZone.classList.add('drag-over');
+}
+
+function unhighlight(e) {
+    dropZone.classList.remove('drag-over');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    
+    imageInput.files = files;
+    previewImages(imageInput);
+}
+</script>
+{% endblock %}
