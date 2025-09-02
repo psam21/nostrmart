@@ -83,6 +83,14 @@ class ApiService {
                 const duration = Date.now() - requestOptions.metadata.startTime;
                 console.log(`API Response: ${response.status} in ${duration}ms`);
 
+                // Handle authentication protection
+                if (response.status === 401) {
+                    const responseText = await response.text();
+                    if (responseText.includes('Authentication Required')) {
+                        throw new Error('API requires authentication. Please check deployment settings.');
+                    }
+                }
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -96,7 +104,8 @@ class ApiService {
 
                 // Don't retry on certain errors
                 if (error.name === 'AbortError' || 
-                    (error.message && error.message.includes('404'))) {
+                    (error.message && error.message.includes('404')) ||
+                    (error.message && error.message.includes('authentication'))) {
                     break;
                 }
 

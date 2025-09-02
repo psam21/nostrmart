@@ -147,19 +147,28 @@ class NostrMartApp {
             // Show loading state
             this.showLoadingState(listingsContainer);
 
-            // Fetch listings from API
-            const response = await fetch('/api/nostr-events?kind=1&limit=4');
-            const data = await response.json();
+            // Check if API is available first
+            const apiAvailable = await this.checkApiAvailability();
+            if (!apiAvailable) {
+                this.showApiUnavailableState(listingsContainer);
+                return;
+            }
 
-            if (data.ok && data.data.events) {
-                this.renderListings(data.data.events, listingsContainer);
+            // Fetch listings from API
+            const response = await window.apiService.getEvents({
+                kind: 1,
+                limit: 4
+            });
+
+            if (response.ok && response.data.events) {
+                this.renderListings(response.data.events, listingsContainer);
             } else {
                 this.showEmptyState(listingsContainer);
             }
 
         } catch (error) {
             console.error('Failed to load featured listings:', error);
-            this.showErrorState(listingsContainer);
+            this.showErrorState(listingsContainer, error);
         }
     }
 
@@ -277,9 +286,47 @@ class NostrMartApp {
     }
 
     /**
+     * Check API availability
+     */
+    async checkApiAvailability() {
+        try {
+            const status = await window.apiService.getApiStatus();
+            return status.available;
+        } catch (error) {
+            console.error('API availability check failed:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Show API unavailable state
+     */
+    showApiUnavailableState(container) {
+        container.innerHTML = `
+            <div class="api-unavailable-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="warning-icon">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <h3>API Currently Unavailable</h3>
+                <p>The backend API is currently protected or unavailable. The frontend is working perfectly!</p>
+                <div class="api-status-info">
+                    <p><strong>Frontend Status:</strong> ✅ Fully functional</p>
+                    <p><strong>Backend Status:</strong> 🔒 Authentication protected</p>
+                    <p><strong>Next Step:</strong> Connect to backend API</p>
+                </div>
+                <button class="btn btn-primary" onclick="app.loadFeaturedListings()">Retry Connection</button>
+            </div>
+        `;
+    }
+
+    /**
      * Show error state
      */
-    showErrorState(container) {
+    showErrorState(container, error = null) {
+        const errorMessage = error && error.message ? error.message : 'There was an error loading the featured listings.';
+        
         container.innerHTML = `
             <div class="error-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="error-icon">
@@ -288,7 +335,7 @@ class NostrMartApp {
                     <line x1="9" y1="9" x2="15" y2="15"/>
                 </svg>
                 <h3>Failed to load listings</h3>
-                <p>There was an error loading the featured listings. Please try again.</p>
+                <p>${this.escapeHtml(errorMessage)}</p>
                 <button class="btn btn-primary" onclick="app.loadFeaturedListings()">Retry</button>
             </div>
         `;
@@ -397,9 +444,39 @@ class NostrMartApp {
         }, 300);
     }
 
-    performSearch(query) {
-        if (query.trim()) {
+    async performSearch(query) {
+        if (!query.trim()) return;
+
+        try {
             this.toast?.show(`Searching for "${query}"...`, 'info');
+
+            // Check if API is available
+            const apiAvailable = await this.checkApiAvailability();
+            if (!apiAvailable) {
+                this.toast?.show('Search requires backend connection. API currently unavailable.', 'warning');
+                return;
+            }
+
+            // Perform search using API service
+            const response = await window.apiService.searchListings(query, {
+                limit: 20
+            });
+
+            if (response.ok && response.data.events) {
+                this.toast?.show(`Found ${response.data.events.length} results for "${query}"`, 'success');
+                
+                // Update the featured listings with search results
+                const listingsContainer = document.querySelector('#featured-listings');
+                if (listingsContainer) {
+                    this.renderListings(response.data.events, listingsContainer);
+                }
+            } else {
+                this.toast?.show(`No results found for "${query}"`, 'info');
+            }
+
+        } catch (error) {
+            console.error('Search failed:', error);
+            this.toast?.show('Search failed. Please try again.', 'error');
         }
     }
 
