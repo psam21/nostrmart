@@ -148,13 +148,16 @@
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background-color: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: white;
     border: 1px solid var(--color-primary);
     border-radius: 2rem;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     transition: all 0.2s ease;
     min-height: 40px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .wallet-connect:hover {
