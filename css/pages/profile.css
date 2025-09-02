@@ -24,18 +24,10 @@
     width: auto;
 }
 
-.navbar .wallet-connect svg {
-    width: 16px;
-    height: 16px;
-    color: white !important;
-    fill: none !important;
-    stroke: white !important;
-    stroke-width: 2 !important;
-}
-
-.navbar .wallet-connect svg * {
-    stroke: white !important;
-    fill: none !important;
+.navbar .wallet-connect .wallet-icon {
+    font-size: 16px;
+    line-height: 1;
+    display: inline-block;
 }
 
 .navbar .wallet-connect .wallet-text {
