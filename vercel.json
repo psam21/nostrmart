@@ -5,22 +5,5 @@
       "runtime": "python3.11",
       "maxDuration": 10
     }
-  },
-  "rewrites": [
-    { "source": "/api/health", "destination": "/api/health.py" },
-    { "source": "/api/nostr/events", "destination": "/api/nostr.py" },
-    { "source": "/api/nostr/event", "destination": "/api/nostr.py" },
-    { "source": "/api/media", "destination": "/api/media.py" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' data:;" }
-      ]
-    }
-  ]
+  }
 }
